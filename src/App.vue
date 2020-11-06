@@ -1,12 +1,32 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
+      <router-view/>
   </div>
 </template>
+
+<script>
+  export default {
+    name:'App',
+    components: {
+
+    },
+    data(){
+      return {
+        timer:null,
+
+      }
+    },
+    mounted () {
+      window.onresize = () =>{
+        clearTimeout(this.timer);
+        this.timer = setTimeout( ()=>{
+          this.$store.commit('screenWidth',  document.documentElement.clientWidth);
+          this.$store.commit('screenHeight',  document.documentElement.clientHeight);
+        },100)
+      }
+    }
+  }
+</script>
 
 <style lang="less">
 #app {
