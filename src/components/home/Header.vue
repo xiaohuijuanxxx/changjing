@@ -61,6 +61,7 @@ export default {
             margin-left: 20px;
             width: 300px;
             color: #fff;
+            font-size: 13px;
         }
 
         .header-rool {
@@ -69,7 +70,7 @@ export default {
             width: 500px;
             font-size: 16px;
             color: #fff;
-            line-height: 70px;
+            line-height: 60px;
 
             span {
                 margin: 0 20px;
@@ -82,7 +83,7 @@ export default {
 
             float: right;
             color: #fff;
-            line-height: 70px;
+            line-height: 60px;
             margin-right: 20px;
             font-size: 18px;
 

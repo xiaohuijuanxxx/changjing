@@ -5,6 +5,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    isCollapse: false,//是否水平折叠收起菜单
     screenWidth: document.documentElement.clientWidth,//可视化区域宽度
     screenHeight: document.documentElement.clientHeight,//可视化区域宽度
   },

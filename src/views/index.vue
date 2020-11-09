@@ -4,9 +4,9 @@
             <el-header>
                 <header-bar></header-bar>
             </el-header>
-            <el-container>
-                <el-aside width="">
-                    <h3>aside</h3>
+            <el-container class="bottomPart">
+                <el-aside width="unset">
+                    <work-menu></work-menu>
                 </el-aside>
                 <el-main>
                     <h3>main</h3>
@@ -18,9 +18,10 @@
 
 <script>
 import headerBar from 'components/home/Header'
+import workMenu from 'components/home/workMenu'
 export default {
     name:'index',
-    components:{headerBar},
+    components:{headerBar,workMenu},
     data() {
         return {
 
@@ -45,5 +46,9 @@ export default {
 
     main {
         padding: 0px;
+    }
+
+    .bottomPart{
+        height: calc(100vh - 60px);//100vh代表可视区域100%，减60代表可视区域60像素一下的高度为该属性高度
     }
 </style>
