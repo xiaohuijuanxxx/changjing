@@ -8,6 +8,13 @@ export default new Vuex.Store({
     isCollapse: false,//是否水平折叠收起菜单
     screenWidth: document.documentElement.clientWidth,//可视化区域宽度
     screenHeight: document.documentElement.clientHeight,//可视化区域宽度
+    list:[
+      { name:"mainPage",
+        path:"/",
+        tabname:"主页",
+        /* components: MainPage */
+      }
+    ],//控制首页tab标签内容列表
   },
   mutations: {
     screenWidth(state,width){
@@ -15,6 +22,9 @@ export default new Vuex.Store({
     },
     screenHeight(state,height){
       state.screenWidth = height
+    },
+    toggleCollapse(state){
+      state.isCollapse = !state.isCollapse;
     },
   },
   actions: {

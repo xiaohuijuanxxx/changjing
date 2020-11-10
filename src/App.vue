@@ -51,4 +51,25 @@ html, body, #app {
     padding: 0px !important;
 } */
 
+//美化滚动条
+::-webkit-scrollbar {
+  width: 3px;
+  height: 8px;
+  cursor: pointer;
+}
+
+::-webkit-scrollbar-thumb {
+  opacity: 0.5;
+  background-color: #61666d;
+  background-clip: padding-box;
+  min-height: 18px;
+  border-radius: 2em;
+}
+
+::-webkit-scrollbar-track {
+  width: 6px;
+  background-color: #021c41;
+  border-radius: 2em;
+}
+
 </style>
