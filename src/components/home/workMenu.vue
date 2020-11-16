@@ -15,19 +15,19 @@
                   <span>数据上传</span>
               </template>
               <el-menu-item-group><!-- 是否使用 vue-router 的模式，启用该模式会在激活导航时以 index 作为 path 进行路由跳转 -->
-                  <el-menu-item index="1-1">
+                  <el-menu-item index="/carInfoManage">
                        <i class="el-icon-upload"></i>
                         <span>车辆信息管理</span>
                   </el-menu-item>
-                  <el-menu-item index="1-2">
+                  <el-menu-item index="/uploadDataManage">
                        <i class="el-icon-upload"></i>
                         <span>数据上传管理</span>
                   </el-menu-item>
-                  <el-menu-item index="1-3">
+                  <el-menu-item index="/uploadStorageMon">
                        <i class="el-icon-upload"></i>
                         <span>上传数据统计与存储监控</span>
                   </el-menu-item>
-                  <el-menu-item index="1-4">
+                  <el-menu-item index="/uploadTaskControl">
                        <i class="el-icon-upload"></i>
                         <span>上传任务监控</span>
                   </el-menu-item>

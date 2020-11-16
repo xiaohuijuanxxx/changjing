@@ -13,10 +13,10 @@
                 <i style="margin-left:5px;" class="el-icon-refresh" title="刷新" @click="TabRefresh(t)"></i>
             </span>
           </el-tab-pane>
-        </el-tabs>
+        </el-tabs><!-- 不写在el-tab-pane的原因是contentHeight这个计算属性高度减去了tabs,也可以写里面-->
         <div class="work-tab-content" :style="{height: contentHeight}">
             <keep-alive :include="cachePage" :exclude="excludeList">
-                <router-view></router-view>
+                <router-view ref="content" v-if="showRouterView"></router-view><!-- -->
             </keep-alive>
         </div>
     </div>
@@ -26,21 +26,33 @@
 export default {
     name:'workTab',
     components:{},
+    props: [
+        "id",
+        "initPage"
+    ],
     data() {
         return {
-            activeTab:'mainPage',
+            showRouterView: true,//控制是否重新进行路由跳转（开始时有缓存的）
+            activeTab:'',//默认当前活跃页
+            oldname:'',//
             initCompleted: false,/* 用来判断dom是否加载完成，第一次进computed的时候dom是没有加载完成的 
             可以用console.log验证，当dom加载完成之后会走mounted，这时候this.$refs才有值，重新计算contentHeight属性*/
-            excludeList: [],
+            excludeList: [],//不缓存组件存放的数组
         };
     },
     created() {
-
+        //添加current监听, current是store中的对象
+        this.$watch('current', function(newval){
+            this.activeTab = newval.name;
+        })
     },
     mounted() {
         this.initCompleted = true;
     },
     computed: {
+        current(){
+            return this.$store.state.current;
+        },
         editableTabs(){
             return this.$store.state.list;
         },
@@ -58,12 +70,11 @@ export default {
         //需要keep-alive缓存的组件名称（需要缓存的组件放在store中），存的是组件的name值，不是router的name值
         cachePage(){
             let cachePage = [];//存放组件的name值的数组
-            if(this.$store.state.list){
+            if(this.$store.state.list){//用foeEach的时候，必须要判断一下是否存在，否则会报错
                 this.$store.state.list.forEach((element) => {
                     cachePage.push(element.name)
                 })
             }
-            console.log(cachePage);
             return cachePage;
         }
     },
@@ -75,12 +86,12 @@ export default {
             console.log(tab);
         },
         TabRefresh(t){
-            this.excludeList = [t.name];//不缓存当前要刷新的组件
-            this.showRouterView = false;
+            this.excludeList = [t.name];//不缓存当前要刷新的组件，即重新加载
+            this.showRouterView = false;//通过控制showRouterView的true或者false来进行缓存组件的是否重新加载
             this.$nextTick(function () {
-                this.showRouterView = true;
+                this.showRouterView = true;//还原showRouterView的值
                 this.$nextTick(function () {
-                    this.excludeList = []
+                    this.excludeList = [];//还原excludeList的值
                 })
             })
         },

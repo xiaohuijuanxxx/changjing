@@ -14,7 +14,7 @@
                     </span>
                 </div>
                 <el-main :style="{'height':mainHeight}">
-                    <work-tab></work-tab>
+                    <work-tab id="worktab_1" initPage="mainPage"></work-tab>
                 </el-main>
             </el-container>
         </el-container>

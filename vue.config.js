@@ -9,6 +9,9 @@ module.exports = {
         alias: {//起别名
             'assets':resolve('src/assets'),
             'components':resolve('src/components'),
+            'router':resolve('src/router'),
+            'axios':resolve('src/axios'),
+            'store':resolve('src/store'),
             'views':resolve('src/views'),//不能写成‘@/views’
         }
       }
