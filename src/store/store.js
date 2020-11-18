@@ -11,9 +11,9 @@ export default new Vuex.Store({
     contentHeight: 0,
     //控制首页tab标签初始内容列表，也就是最开始进入网站显示的tab列表
     list:[
-      { name:"mainPage",
+      { /* name:"mainPage",
         path:"/",
-        tabname:"主页zhuye主页zzzzzzzzzzz",
+        tabname:"主页zhuye主页zzzzzzzzzzz", */
         /* components: MainPage */
       },
     ],
@@ -22,7 +22,9 @@ export default new Vuex.Store({
       /* name: 'mainPage',
       path:"/",
       tabname:"主页zhuye主页zzzzzzzzzzz", */
-    }
+    },
+    //记录tab标签数
+    tabCount: 0,
   },
   mutations: {
     screenWidth(state,width){
@@ -36,9 +38,29 @@ export default new Vuex.Store({
     },
     contentHeight(state, contentHeight){
       state.contentHeight = contentHeight;
+    },
+    //路由切换的时候添加tab标签
+    worktabRoute(state,payload){
+      //findIndex返回元素位置，s为list中的元素，依次遍历
+      let ind = state.list.findIndex(s=>s.name === payload.to.name);
+      if(ind > -1){//如果该tab已经被创建
+        state.list.splice(ind, 1, payload.to);
+        state.current = state.list[ind];
+      }else{
+        //标签不存在的时候，新建tab
+        state.list.push(payload.to);
+        state.current = payload.to;
+        state.tabCount++;
+        //找到新建的tab索引
+        ind = state.list.findIndex(s=>s.name === payload.to.name);
+      }
+      state.current.index = ind;//保证tab标签顺序不变
     }
   },
   actions: {
+    worktabRoute({commit},payload){
+      commit("worktabRoute",payload);
+    },
   },
   modules: {
   }

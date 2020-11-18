@@ -1,7 +1,7 @@
 <template>
     <div class="work-tab">
         <el-tabs v-model="activeTab" type="card" closable @tab-remove="removeTab" @tab-click="clickTab" ref="tabs">
-          <el-tab-pane v-for="(t) in editableTabs" 
+          <el-tab-pane v-for="(t) in worktabs" 
           :key="t.name" 
           :label="t.tabname" 
           :name="t.name"
@@ -34,10 +34,27 @@ export default {
         return {
             showRouterView: true,//控制是否重新进行路由跳转（开始时有缓存的）
             activeTab:'',//默认当前活跃页
+            initPageCount: 0,//记录需要初始化页面的个数
             oldname:'',//
+            rightActiveTab:'',//设置一个变量存储右键tab的name
             initCompleted: false,/* 用来判断dom是否加载完成，第一次进computed的时候dom是没有加载完成的 
             可以用console.log验证，当dom加载完成之后会走mounted，这时候this.$refs才有值，重新计算contentHeight属性*/
             excludeList: [],//不缓存组件存放的数组
+            hasInitPage: false,//是否初始化页面
+            popItems:[//创建的右键菜单的内容
+                {
+                    id: 'current',
+                    txt: '关闭当前'
+                },
+                {
+                    id: 'others',
+                    txt: '关闭其他'
+                },
+                {
+                    id: 'all',
+                    txt: '关闭所有'
+                }
+            ],
         };
     },
     created() {
@@ -45,15 +62,51 @@ export default {
         this.$watch('current', function(newval){
             this.activeTab = newval.name;
         })
+        //
+        this.oldName = this.current.name;
     },
     mounted() {
         this.initCompleted = true;
+        let _that = this;
+        //$().on()是jquery方法，在被选元素及子元素上添加一个或多个事件处理程序。
+        //当鼠标指针移动到元素上,并按下鼠标左键时,会发生 mousedown 事件, 给指定元素.el-tabs__item添加mouseDown事件
+        $(".work-tab > .el-tabs").on("mousedown", ".el-tabs__item", function(e){
+            //event.which属性返回的是对应鼠标按钮的映射代码值， 1-鼠标左键、2-鼠标中键(滚轮键)、3-鼠标右键
+            if(e.which == 3){//当鼠标右键点击tab标签时
+                document.body.oncontextmenu = function () {
+                    return false
+                }//鼠标右键点击.el-tabs 不显示什么返回、复制的白框，因为要设置右键效果，所以要把原来的效果取消
+                //确定鼠标在哪个tab上右键（this指向），获取到这个tab的索引值
+                let currentTabIndex = $(this).index();
+                //找到当前tab页
+                let currentTab = _that.worktabs[currentTabIndex];
+                //设置一个变量存储这个tab的name
+                _that.rightActiveTab = currentTab.name;
+            }
+        })
+
+        //打开初始页面
+        if(this.initPage){
+            this.hasInitPage = true;
+            this.router.replace('/');
+            this.initPage.split(" ").forEach((item)=>{
+                this.initPageCount++;
+                //路由传参时，path与query连用、name与param连用
+                this.router.replace({
+                    name: item,
+                    params:{
+                        
+                    }
+                })
+            })
+        }
+
     },
     computed: {
         current(){
             return this.$store.state.current;
         },
-        editableTabs(){
+        worktabs(){
             return this.$store.state.list;
         },
         contentHeight(){
