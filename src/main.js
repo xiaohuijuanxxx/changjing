@@ -12,7 +12,10 @@ import 'element-ui/lib/theme-chalk/index.css';
 Vue.use(ElementUI);
 Vue.use(VuecontextMenu);
 
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
+
+//原型脸上挂载bus
+Vue.prototype.$bus = new Vue()
 
 new Vue({
   router,

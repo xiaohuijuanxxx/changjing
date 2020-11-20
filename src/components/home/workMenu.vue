@@ -181,6 +181,7 @@ export default {
         height: 100%;
         box-sizing: border-box;
         text-align: left;
+        background-color: #0a1c41;
     }
 
     .el-menu{

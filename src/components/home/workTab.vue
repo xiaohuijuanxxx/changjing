@@ -1,10 +1,12 @@
 <template>
     <div class="work-tab">
-        <el-tabs v-model="activeTab" type="card" closable @tab-remove="removeTab" @tab-click="clickTab" ref="tabs">
-          <el-tab-pane v-for="(t) in worktabs" 
+        <!-- :closable="tag.name !== 'mainPage'" -->
+        <el-tabs v-model="activeTab" type="card"  @tab-remove="removeTab" @tab-click="clickTab" ref="tabs">
+          <el-tab-pane v-for="t in worktabs" 
           :key="t.name" 
           :label="t.tabname" 
           :name="t.name"
+          :closable="!isInit(t.name)"
           >
             <span slot="label" v-if="t.name == activeTab">
                 <span class="tab_zdy_wrap">
@@ -35,12 +37,12 @@ export default {
             showRouterView: true,//控制是否重新进行路由跳转（开始时有缓存的）
             activeTab:'',//默认当前活跃页
             initPageCount: 0,//记录需要初始化页面的个数
-            oldname:'',//
+            oldname:'',//存放当前tab页name的中间变量
             rightActiveTab:'',//设置一个变量存储右键tab的name
             initCompleted: false,/* 用来判断dom是否加载完成，第一次进computed的时候dom是没有加载完成的 
             可以用console.log验证，当dom加载完成之后会走mounted，这时候this.$refs才有值，重新计算contentHeight属性*/
             excludeList: [],//不缓存组件存放的数组
-            hasInitPage: false,//是否初始化页面
+            hasInitPage: false,//是否已经初始化页面
             popItems:[//创建的右键菜单的内容
                 {
                     id: 'current',
@@ -58,6 +60,8 @@ export default {
         };
     },
     created() {
+        /* this.$store.commit("initList"); */
+        this.$store.state.list = [];
         //添加current监听, current是store中的对象
         this.$watch('current', function(newval){
             this.activeTab = newval.name;
@@ -80,26 +84,101 @@ export default {
                 let currentTabIndex = $(this).index();
                 //找到当前tab页
                 let currentTab = _that.worktabs[currentTabIndex];
-                //设置一个变量存储这个tab的name
+                //设置一个变量存储当前tab的name
                 _that.rightActiveTab = currentTab.name;
+                let $wrapper = $('<div class="worktab-rightmenu-wrapper"><div class="worktab-menu"><ul></ul></div></div>')
+                $('body').append($wrapper)
+                let li = ''
+                _that.popItems.forEach((item, i) => {
+                    if (_that.isInit(currentTab.name) && i == 0) {
+                        //li += '<li class="is-disabled">'+ item.txt +'</li>'
+                    } else {
+                        li += '<li data-id="' + item.id + '">' + item.txt + '</li>'
+                    }
+                })
+                let $li = $(li)
+
+                $wrapper.find('ul').append($li)
+                $wrapper.find('ul li').on('click', function () {
+                    let id = $(this).data("id")
+                    let temp = [].concat(_that.worktabs)
+                    if (id === 'current') {
+                        if (!_that.isInit(currentTab.name)) {
+                            _that.removeTab(currentTab.name)
+                        }
+                    } else if (id === 'others') {
+                        temp.forEach((item, i) => {
+                            if (!_that.isInit(item.name) && i !== currentTabIndex) {
+                                _that.$store.dispatch("worktabRemove", item.name)
+                            }
+                        })
+                        _that.$router.push({
+                            name: currentTab.name
+                        })
+                    } else {
+                        temp.forEach((item, i) => {
+                            if (!_that.isInit(item.name)) {
+                                //关闭所有
+                                _that.$store.dispatch("worktabRemove", item.name)
+                            }
+                        })
+                        if (_that.hasInitPage) {
+                            _that.$router.push({
+                                name: _that.worktabs[0].name,
+                                params: _that.worktabs[0].params
+                            })
+                        } else {
+                            _that.$router.push("/")
+                        }
+                    }
+                })
+                $wrapper.find('.worktab-menu').css({
+                    'top': $(this).offset().top + $(this).height() + 'px',
+                    "left": $(this).offset().left + "px"
+                })
+
+
+                $wrapper.on('click', function (e) {
+                    $(this).remove()
+                    setTimeout(() => {
+                        document.body.oncontextmenu = null;
+                    }, 300)
+                });
             }
         })
 
         //打开初始页面
         if(this.initPage){
             this.hasInitPage = true;
-            this.router.replace('/');
+            this.$router.replace('/');
             this.initPage.split(" ").forEach((item)=>{
                 this.initPageCount++;
                 //路由传参时，path与query连用、name与param连用
-                this.router.replace({
+                this.$router.replace({
                     name: item,
-                    params:{
-                        
-                    }
+                    params:{}
                 })
             })
+            //传入的初始页面initPage为mainPage, 如果当前打开的tab页签不为mainPage, 则初始化当前tab
+            if(this.initPage != this.oldName){
+                this.$router.push({
+                    name: this.oldName,
+                    params: {
+                        /* moduleName: this.id */
+                    }
+                })
+            }
         }
+        //通过事件关闭tab，别的组件调用这个事件来关闭tab
+        //this.$bus.$on用于监听（接收）总线事件
+        this.$bus.$on("closeTab", function(val){
+            _that.removeTab(val);
+        })
+        //通过事件刷新tab
+        this.$bus.$on("refreshTab", function(val){
+            _that.TabRefresh(val)
+        })
+
 
     },
     computed: {
@@ -132,11 +211,69 @@ export default {
         }
     },
     methods: {
-        removeTab(targetName){
-            console.log(targetName);
+        //tab标签是否可关闭，设置首页不可关闭
+        isInit(name){
+            let flag = false;
+            if(this.initPage){//如果设置了初始tab
+                this.initPage.split(" ").forEach( e => {
+                    if(e == name){
+                        flag = true;
+                    }
+                })
+            }
+            return flag;
+        },
+        removeTab(name){//关闭tab页
+            //如果要删除的tab是当前选中的tab，那么需要删除后，将其他tab作为活跃tab, 程选中状态
+            //this.worktabs.length就是store中list的长度，this.initPageCount记录需要初始化的页面数，这个条件是为了约束初始的首页是不能删除的，即最少展示一个tab页
+            if(name === this.$store.state.current.name && this.worktabs.length >= this.initPageCount){
+                //因为初始页是不能删除的，所以大于1的时候就是存在可删除的tab
+                if(this.worktabs.length > this.initPageCount){
+                    // 是当前页，返回上一个打开的tab页
+                    //this.$router.back();
+                    //是当前页，则删除后将最后一个tab作为活跃选中页
+                    let nowWorktabs = this.worktabs;
+                    for(let i=0; i<nowWorktabs.length; i++){
+                        if(nowWorktabs[i].name == name){
+                            //如果要删除的不是最后一个tab那么将他的后一个tab作为活跃选中tab
+                            if(nowWorktabs[i+1]){
+                                this.$router.push({
+                                    name: nowWorktabs[i+1].name,
+                                    params: nowWorktabs[i+1].params,
+                                })
+                            }//如果要删除的tab是最后一个tab，那么将他的前一个tab作为活跃选中tab
+                            else if(nowWorktabs[i-1]){
+                                this.$router.push({
+                                    name: nowWorktabs[i-1].name,
+                                    params: nowWorktabs[i-1].params,
+                                })
+                            }
+                            break;
+                        }
+                    }
+                }else {//因为大条件是>= 不是大于那么就是= 所以这种情况是只剩下初始的tab页的时候
+                    if (this.hasInitPage) {//如果页面初始化完毕（mainPage）
+                        this.$router.push({
+                            name: this.worktabs[0].name,
+                            params: this.worktabs[0].params,
+                        })
+                    } else {
+                        this.$router.push({path:"/"})
+                    }
+                }
+            }
+            //如果要删除的tab不是当前tab，则直接删除即可，活跃的tab还是活跃选中状态
+            this.$store.dispatch('worktabRemove',name)
         },
         clickTab(tab){
+            //回到函数为被选中的tab实例
             console.log(tab);
+            this.$router.push({
+                /* name:this.worktabs[tab.index].leafName, */
+                name: tab.name,
+                params: this.worktabs[tab.index].params,
+            })
+            //跳转路由之所以会改变current是因为路由跳转要经过路由拦截器filter,走vuex的action，最后到worktabRoute中改变current
         },
         TabRefresh(t){
             this.excludeList = [t.name];//不缓存当前要刷新的组件，即重新加载
@@ -209,6 +346,58 @@ export default {
         overflow-x: auto;//如果水平溢出元素内容区域的话，则对内容进行裁剪（添加滚动）
         overflow-y: auto;
         background-color: #021c41;
+    }
+
+    .worktab-rightmenu-wrapper {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 999;
+    }
+
+    .worktab-menu {
+        width: 100px;
+        position: absolute;
+        z-index: 10;
+
+        background-color: #fff;
+        border: 1px solid #ebeef5;
+        border-radius: 4px;
+        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
+    }
+
+    .worktab-menu > ul {
+        margin: auto;
+    }
+
+    .worktab-menu ul li {
+        list-style: none;
+        line-height: 36px;
+        padding: 0 20px;
+        margin: 0;
+        font-size: 14px;
+        color: #606266;
+        cursor: pointer;
+        outline: none;
+    }
+
+    .worktab-menu ul li:hover {
+        background-color: #ecf5ff;
+        color: #66b1ff;
+    }
+
+    .worktab-menu ul li span {
+        display: inline-block;
+    }
+
+    .worktab-menu ul li span:first-child {
+        margin-right: 5px;
+    }
+
+    .worktab-menu ul li.is-disabled {
+        cursor: not-allowed;
     }
 
 </style>

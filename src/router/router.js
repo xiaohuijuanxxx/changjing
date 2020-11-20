@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import VueRouter from 'vue-router'
+import Router from 'vue-router'
 import index from 'views/index'
 import mainPage from 'views/mainPage'
 import sjsc from 'router/sjsc/sjsc'
@@ -7,7 +7,12 @@ import sjsc from 'router/sjsc/sjsc'
 const login = ()=>import("views/login")
 /* const sjsc = ()=>import("router/sjsc/sjsc") */
 
-Vue.use(VueRouter)
+Vue.use(Router)
+const routerPush = Router.prototype.push
+Router.prototype.push = function push(location) {
+    return routerPush.call(this, location).catch(error => error)
+}
+
 
 const routes = [
   {
@@ -20,7 +25,7 @@ const routes = [
       meta: { 
         tabname:'首页',
        },
-      components: mainPage,
+      component: mainPage,
     }].concat(sjsc)
     
   },
@@ -31,7 +36,7 @@ const routes = [
   },
 ]
 
-const router = new VueRouter({
+const router = new Router({
   mode: 'history',
   base: "/changjingyun",
   routes
