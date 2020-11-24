@@ -5,7 +5,7 @@ export default[
         meta: {
             tabname: '车辆信息管理',
         },
-        components: ()=> import ('views/sjsc/sjsc01_carInfoManage/carInfoManage')
+        component: ()=> import ('views/sjsc/sjsc01_carInfoManage/carInfoManage')
     },
     {
         path: '/uploadDataManage',
@@ -13,7 +13,7 @@ export default[
         meta: { 
             tabname:'数据上传管理',
         },
-        components: ()=> import ('views/sjsc/sjsc02_uploadDataManage/uploadDataManage')
+        component: ()=> import ('views/sjsc/sjsc02_uploadDataManage/uploadDataManage')
     },
     {
         path: '/uploadStorageMon',
@@ -21,7 +21,7 @@ export default[
         meta: { 
             tabname:'上传数据统计与存储监控',
         },
-        components: ()=> import ('views/sjsc/sjsc03_uploadStorageMon/uploadStorageMon')
+        component: ()=> import ('views/sjsc/sjsc03_uploadStorageMon/uploadStorageMon')
     },
     {
         path: '/uploadTaskControl',
@@ -29,6 +29,6 @@ export default[
         meta: { 
             tabname:'上传任务监控',
         },
-        components: ()=> import ('views/sjsc/sjsc04_uploadTaskControl/uploadTaskControl')
+        component: ()=> import ('views/sjsc/sjsc04_uploadTaskControl/uploadTaskControl')
     },
 ]

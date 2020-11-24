@@ -18,7 +18,8 @@
         </el-tabs><!-- 不写在el-tab-pane的原因是contentHeight这个计算属性高度减去了tabs,也可以写里面-->
         <div class="work-tab-content" :style="{height: contentHeight}">
             <keep-alive :include="cachePage" :exclude="excludeList">
-                <router-view ref="content" v-if="showRouterView"></router-view><!-- -->
+                <!-- router-view写在组件要渲染的地方，组件就是router中的component -->
+                <router-view ref="content" v-if="showRouterView"></router-view>
             </keep-alive>
         </div>
     </div>
@@ -86,10 +87,13 @@ export default {
                 let currentTab = _that.worktabs[currentTabIndex];
                 //设置一个变量存储当前tab的name
                 _that.rightActiveTab = currentTab.name;
+                //要插入的dom
                 let $wrapper = $('<div class="worktab-rightmenu-wrapper"><div class="worktab-menu"><ul></ul></div></div>')
+                //append() 方法在被选元素的结尾插入指定内容。
                 $('body').append($wrapper)
                 let li = ''
                 _that.popItems.forEach((item, i) => {
+                    //如果是首页则不显示关闭当前选项
                     if (_that.isInit(currentTab.name) && i == 0) {
                         //li += '<li class="is-disabled">'+ item.txt +'</li>'
                     } else {
@@ -99,15 +103,20 @@ export default {
                 let $li = $(li)
 
                 $wrapper.find('ul').append($li)
+                //点击li事件
                 $wrapper.find('ul li').on('click', function () {
                     let id = $(this).data("id")
+                    //将打开的所有tabs放到一个数组里面
                     let temp = [].concat(_that.worktabs)
+                    //关闭当前页
                     if (id === 'current') {
                         if (!_that.isInit(currentTab.name)) {
                             _that.removeTab(currentTab.name)
                         }
-                    } else if (id === 'others') {
+                        
+                    } else if (id === 'others') {//关闭其他
                         temp.forEach((item, i) => {
+                            //如果不是首页和当前页则关闭
                             if (!_that.isInit(item.name) && i !== currentTabIndex) {
                                 _that.$store.dispatch("worktabRemove", item.name)
                             }
@@ -115,31 +124,35 @@ export default {
                         _that.$router.push({
                             name: currentTab.name
                         })
-                    } else {
+                        
+                    } else {//关闭所有
                         temp.forEach((item, i) => {
                             if (!_that.isInit(item.name)) {
                                 //关闭所有
                                 _that.$store.dispatch("worktabRemove", item.name)
                             }
                         })
-                        if (_that.hasInitPage) {
+                        if (_that.hasInitPage) {//mainPage初始化完毕，则重新加载
                             _that.$router.push({
                                 name: _that.worktabs[0].name,
                                 params: _that.worktabs[0].params
                             })
-                        } else {
+                        } else {//否则返回/index路由
                             _that.$router.push("/")
                         }
                     }
                 })
+                //为worktab-menu添加样式，使他出现在这个tab的正下方
                 $wrapper.find('.worktab-menu').css({
                     'top': $(this).offset().top + $(this).height() + 'px',
                     "left": $(this).offset().left + "px"
                 })
 
-
+                //点击执行关闭当前、关闭其他、关闭所有之一后，移除这个右键菜单
                 $wrapper.on('click', function (e) {
                     $(this).remove()
+                    //恢复右键显示菜单的功能，因为开始时false
+                    //oncontextmenu 事件在元素中用户右击鼠标时触发。
                     setTimeout(() => {
                         document.body.oncontextmenu = null;
                     }, 300)
@@ -289,41 +302,38 @@ export default {
 };
 </script>
 
-<style scoped lang="less">
+<style lang="less">
 
     .work-tab{
         overflow: hidden;
         background-color: #0a1c41;
     }
 
-    /deep/.el-tabs--card>.el-tabs__header{
+    .work-tab .el-tabs--card > .el-tabs__header{
         background-color: #0a1c41;
         border-bottom: 2px solid #163168;
         margin: 0px;
     }
 
-    /deep/.el-tabs__item{
+    .work-tab > .el-tabs--card > .el-tabs__header .el-tabs__item{
         color: #9d9ea1;
     }
 
-    /deep/.el-tabs__item:hover{
+    .work-tab > .el-tabs--card > .el-tabs__header .el-tabs__item:hover{
         color: #b1d4e9;
     }
 
-    /deep/.el-tabs--card>.el-tabs__header .el-tabs__item{
+    .work-tab > .el-tabs--card >.el-tabs__header .el-tabs__item{
         border-left: 5px solid #0a1c41;
     }
 
-    /deep/.el-tabs--card>.el-tabs__header .el-tabs__nav{
+    .work-tab > .el-tabs--card >.el-tabs__header .el-tabs__nav{
         background-color: #163168;
         border: 2px solid #0a1c41;
     }
 
-    /deep/.el-tabs--card>.el-tabs__header .el-tabs__item.is-active{
-        border-bottom-color: #ffffff;
-    }
-
-    /deep/.el-tabs__item.is-active{
+    .work-tab > .el-tabs--card >.el-tabs__header .el-tabs__item.is-active{
+        border-bottom-color:#163168;
         color: #ffffff;
     }
 
@@ -342,10 +352,11 @@ export default {
         word-break: break-all;//允许在单词内换行
     }
 
-    .work-tab-content{
+    .work-tab > .work-tab-content{
         overflow-x: auto;//如果水平溢出元素内容区域的话，则对内容进行裁剪（添加滚动）
         overflow-y: auto;
         background-color: #021c41;
+        position: relative;
     }
 
     .worktab-rightmenu-wrapper {
@@ -370,6 +381,7 @@ export default {
 
     .worktab-menu > ul {
         margin: auto;
+        padding: 0px;
     }
 
     .worktab-menu ul li {

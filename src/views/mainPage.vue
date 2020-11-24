@@ -1,10 +1,6 @@
 <template>
     <div>
-        <div class="worktab-rightmenu-wrapper">
-            <div class="worktab-menu">
-                <ul>aaa</ul>
-            </div>
-        </div>
+        <h3>我是mainPage</h3>
     </div>
 </template>
 
