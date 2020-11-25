@@ -63,8 +63,9 @@ axios.interceptors.request.use(function (config){
 });
 
 //添加响应拦截器
-axios.interceptors.response.use(function (config){
+axios.interceptors.response.use(function (response){
     /* tryHideFullScreenLoading(); */
+    /* console.log(response); */
     console.log(response);
     console.log(window.location);
     if(response && (response.status == 200)){
@@ -76,20 +77,20 @@ axios.interceptors.response.use(function (config){
                 message: response.data.debugMes
             });
         }
-    }
-    //未登录或者请求被拒绝
-    if(response.data.code == 401||response.data.code == 403){
-        let status = false;
-        let array = window.location.pathname.split('/');
-        for(let i=0;i<array.length;i++){
-            //如果是注册页面，那么不进行路由跳转到登录
-            if(array[i] == 'userRegister'){
-                status = true;
-                continue
-            }
-            if(!status){
-                window.location.href = window.location.origin + '/changjing/loginShoe';
-                return false;
+        //未登录或者请求被拒绝
+        if(response.data.code == 401||response.data.code == 403){
+            let status = false;
+            let array = window.location.pathname.split('/');
+            for(let i=0;i<array.length;i++){
+                //如果是注册页面，那么不进行路由跳转到登录
+                if(array[i] == 'userRegister'){
+                    status = true;
+                    continue
+                }
+                if(!status){
+                    window.location.href = window.location.origin + '/changjing/loginShoe';
+                    return false;
+                }
             }
         }
         if(response.headers["content-type"] == "text/html"){

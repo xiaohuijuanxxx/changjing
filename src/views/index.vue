@@ -23,7 +23,9 @@
 
 <script>
 import headerBar from 'components/home/Header'
-import workMenu from 'components/home/workMenu'
+/* import workMenu from 'components/home/workMenu' */
+/* import workMenu from 'components/home/workMenu1' */
+import workMenu from 'components/home/workMenu2'
 import workTab from 'components/home/workTab'
 
 export default {
