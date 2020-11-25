@@ -19,7 +19,7 @@ module.exports = {
             'assets':resolve('src/assets'),
             'components':resolve('src/components'),
             'router':resolve('src/router'),
-            'axios':resolve('src/axios'),
+            /* 'axios':resolve('src/axios'), 这里设置axios别名会引起后续路径*/
             'store':resolve('src/store'),
             'views':resolve('src/views'),//不能写成‘@/views’
         }

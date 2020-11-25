@@ -30,7 +30,14 @@ export default {
         }
     },
     created() {
-
+        this.$axios({
+            url: 'http://rap2api.taobao.org/app/mock/269468/userInfo/getAuthFromCurrentUser',
+            method: 'get',
+        }).then(function (res) {
+            if(res.code == 200) {
+                console.log(res.info);
+            }
+        })
     },
     mounted() {
 
