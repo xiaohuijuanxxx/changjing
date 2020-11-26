@@ -159,7 +159,14 @@ export default {
         };
     },
     created() {
-        
+        this.$axios({
+            url: this.$api.SSOloginApi.getAuthFromCurrentUser,
+            method: 'post',
+        }).then(function (res) {
+            if(res.code == 200) {
+                console.log(res.info);
+            }
+        })
     },
     mounted() {
 

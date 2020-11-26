@@ -1,40 +1,42 @@
 <template>
     <div class="work_menu">
+        <!-- background-color: #001530;dom中设置背景的话hover会有问题 -->
         <el-menu
             router
-            class="leftPart"
+            text-color="#ebf0f8"
             :collapse="isCollapse"
             :collapse-transition="false"
             :class="{collmin:!isCollapse}"
         ><!-- 不水平折叠收起菜单, 当不水平折叠收起菜单时绑定collmin属性 -->
             <template v-for="item in menuTree">
-                <!-- 如果有多层，那么只有最后一层有menuLink,所以可以先随便设置一个index,之后最后一层生效 -->
+                <!-- 如果有多层，那么只有最后一层有menuInitlink,所以可以先随便设置一个index,之后最后一层生效 -->
+                <!-- 如果有第二层 -->
                 <el-submenu v-if="item.children&&item.children.length" :key="item.menuId" :index="item.menuInitlink||item.menuId" :show-timeout="0" :hide-timeout="0">
                   <template slot="title" v-if="item.menuName">
                       <i :class="getIcon(item.menuName)"></i>
                       <span>{{item.menuName}}</span>
                   </template>
-                  <!-- 如果有第三层 -->
                     <template v-for="itemChild in item.children">
-                        <el-submenu v-if="itemChild.childen&&itemChild.childen.length>0" :key="itemChild.menuId" :index="itemChild.menuLink||item.menuId" :show-timeout="0" :hide-timeout="0">
+                        <!-- 如果有第三层 -->
+                        <el-submenu v-if="itemChild.childen&&itemChild.childen.length>0" :key="itemChild.menuId" :index="itemChild.menuInitlink||item.menuId" :show-timeout="0" :hide-timeout="0">
                           <template slot="title" v-if="itemChild.menuName">
                             <i :class="getIcon(itemChild.menuName)"></i>
                             <span>{{itemChild.menuName}}</span>
                           </template>
                             <!-- 第三层 -->
-                            <el-menu-item :key="itemChild.childen.menuId" :index="itemChild.childen.menuLink">
+                            <el-menu-item :key="itemChild.childen.menuId" :index="itemChild.childen.menuInitlink">
                                 <i :class="getIcon(itemChild.childen.menuName)"></i><!-- v-if="item.menuIcon!=''" -->
                                 <span slot="title">{{itemChild.childen.menuName}}</span>
                             </el-menu-item>
                         </el-submenu>
-                        <el-menu-item v-else :key="itemChild.menuId" :index="itemChild.menuLink">
+                        <el-menu-item v-else :key="itemChild.menuId" :index="itemChild.menuInitlink">
                             <i :class="getIcon(itemChild.menuName)"></i><!-- v-if="item.menuIcon!=''" -->
                             <span slot="title">{{itemChild.menuName}}</span>
                         </el-menu-item>
                     </template>
                 </el-submenu>
-                <!-- 如果只有一层，那么有menuLink字段 -->
-                <el-menu-item v-else :key="item.menuId" :index="item.menuLink">
+                <!-- 如果只有一层，那么有menuInitlink字段 -->
+                <el-menu-item v-else :key="item.menuId" :index="item.menuInitlink">
                     <i :class="getIcon(item.menuName)"></i><!-- v-if="item.menuIcon!=''" -->
                     <span slot="title">{{item.menuName}}</span>
                 </el-menu-item>
@@ -67,9 +69,9 @@ export default {
         }).then(function (res) {
             if(res.code == 200) {
                 if(res.info.menuList&&res.info.menuList.length>0){
-                    that.menuList = res.info.menuList[0].children;
+                    that.menuTree = res.info.menuList[0].children;
                     //如果只有一个个人信息中心，则弹出提示：您没有任何权限
-                    if(that.menuList.length == 1){
+                    if(that.menuTree.length == 1){
                         that.open();
                     }
                 }
@@ -145,7 +147,25 @@ export default {
         background-color: #0a1c41;
     }
 
+    .el-menu{
+        border-right: solid 1px #061630;
+        background-color: #001530;
+    }
+
+    /deep/ .el-menu-item i {
+        color: #52a4ff;
+    }
+
+    /deep/ .el-menu-item:hover{
+        background-color: #003168;
+    }
+
+    /deep/ .el-menu-item:focus, .el-menu-item:hover{
+        background-color: #003168;
+    }
+    
     .collmin {
         min-width: 15em;
     }
+
 </style>
