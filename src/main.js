@@ -7,13 +7,16 @@ import 'router/filter'//路由拦截器
 import $ from 'jquery'
 import './api/mainApi'
 import './mock/mock'
+/* 右键菜单组件，暂时没用到 */
 import VuecontextMenu from 'vue-context-menu';
 
+import searchAccordion from 'components/accordion/accordion'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 Vue.use(ElementUI);
 Vue.use(VuecontextMenu);
 
+Vue.component('searchAccordion', searchAccordion);
 Vue.config.productionTip = false;
 
 //原型脸上挂载bus
