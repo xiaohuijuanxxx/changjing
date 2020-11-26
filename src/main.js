@@ -5,7 +5,7 @@ import store from './store/store'
 import './axios/filter'//请求相应拦截器
 import 'router/filter'//路由拦截器
 import $ from 'jquery'
-import 'assets/common/css/index'
+/* import './assets/common/css/index.css' */
 import './api/mainApi'
 import './mock/mock'
 /* 右键菜单组件，暂时没用到 */
